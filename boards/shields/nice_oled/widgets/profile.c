@@ -32,7 +32,7 @@ static const uint8_t heart_outline_map[] = {
     0x00, 0x00, 0x00, 0xff, /* color 1 */
 #endif
     0x50, /* .#.#. */
-    0x88, /* #...# */
+    0xf8, /* ##### */
     0x88, /* #...# */
     0x50, /* .#.#. */
     0x20, /* ..#.. */

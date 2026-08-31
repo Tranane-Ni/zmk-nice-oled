@@ -17,20 +17,80 @@ LV_IMG_DECLARE(profile_active);
 #endif
 
 #if !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_PROFILE_BIG)
+
+/*
+ * Custom: 5x5 heart bitmaps (indexed 1bit) replacing the default
+ * Bluetooth profile boxes. Outline heart = unselected profile,
+ * filled heart = active profile.
+ */
+static const uint8_t heart_outline_map[] = {
+#if CONFIG_NICE_OLED_WIDGET_INVERTED
+    0x00, 0x00, 0x00, 0xff, /* color 0 */
+    0xff, 0xff, 0xff, 0xff, /* color 1 */
+#else
+    0xff, 0xff, 0xff, 0xff, /* color 0 */
+    0x00, 0x00, 0x00, 0xff, /* color 1 */
+#endif
+    0x50, /* .#.#. */
+    0x88, /* #...# */
+    0x88, /* #...# */
+    0x50, /* .#.#. */
+    0x20, /* ..#.. */
+};
+
+static const lv_img_dsc_t heart_outline = {
+    .header.cf = LV_IMG_CF_INDEXED_1BIT,
+    .header.always_zero = 0,
+    .header.reserved = 0,
+    .header.w = 5,
+    .header.h = 5,
+    .data_size = 13,
+    .data = heart_outline_map,
+};
+
+static const uint8_t heart_filled_map[] = {
+#if CONFIG_NICE_OLED_WIDGET_INVERTED
+    0x00, 0x00, 0x00, 0xff, /* color 0 */
+    0xff, 0xff, 0xff, 0xff, /* color 1 */
+#else
+    0xff, 0xff, 0xff, 0xff, /* color 0 */
+    0x00, 0x00, 0x00, 0xff, /* color 1 */
+#endif
+    0x50, /* .#.#. */
+    0xf8, /* ##### */
+    0xf8, /* ##### */
+    0x70, /* .###. */
+    0x20, /* ..#.. */
+};
+
+static const lv_img_dsc_t heart_filled = {
+    .header.cf = LV_IMG_CF_INDEXED_1BIT,
+    .header.always_zero = 0,
+    .header.reserved = 0,
+    .header.w = 5,
+    .header.h = 5,
+    .data_size = 13,
+    .data = heart_filled_map,
+};
+
 static void draw_inactive_profiles(lv_obj_t *canvas, const struct status_state *state) {
     lv_draw_img_dsc_t img_dsc;
     lv_draw_img_dsc_init(&img_dsc);
 
-    lv_canvas_draw_img(canvas, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_X, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_Y, &profiles, &img_dsc);
+    for (int i = 0; i < 5; i++) {
+        lv_canvas_draw_img(canvas, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_X + (i * 7),
+                           CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_Y, &heart_outline, &img_dsc);
+    }
 }
 
 static void draw_active_profile(lv_obj_t *canvas, const struct status_state *state) {
-    lv_draw_rect_dsc_t rect_white_dsc;
-    init_rect_dsc(&rect_white_dsc, LVGL_FOREGROUND);
+    lv_draw_img_dsc_t img_dsc;
+    lv_draw_img_dsc_init(&img_dsc);
 
     int offset = state->active_profile_index * 7;
 
-    lv_canvas_draw_rect(canvas, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_X + offset, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_Y, 3, 3, &rect_white_dsc);
+    lv_canvas_draw_img(canvas, CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_X + offset,
+                       CONFIG_NICE_OLED_WIDGET_PROFILE_CUSTOM_Y, &heart_filled, &img_dsc);
 }
 #endif // !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_PROFILE_BIG)
 

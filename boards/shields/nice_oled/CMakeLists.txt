@@ -30,6 +30,8 @@ if(CONFIG_ZMK_DISPLAY AND CONFIG_NICE_OLED_WIDGET_STATUS)
 
     zephyr_library_sources(custom_status_screen.c)
     zephyr_library_sources(assets/images.c)
+    zephyr_library_sources(assets/custom_icons.c)
+    zephyr_library_sources(assets/screen_art.c)
 
     if(CONFIG_NICE_OLED_WIDGET_CENTRAL_SHOW_BATTERY_PERIPHERAL_ALL OR CONFIG_NICE_OLED_WIDGET_CENTRAL_SHOW_BATTERY_PERIPHERAL_ONLY OR CONFIG_NICE_OLED_WIDGET_CENTRAL_SHOW_BATTERY_PERIPHERAL_AND_CENTRAL)
       # TODO
@@ -76,6 +78,9 @@ if(CONFIG_ZMK_DISPLAY AND CONFIG_NICE_OLED_WIDGET_STATUS)
 
       if(CONFIG_NICE_OLED_WIDGET_LAYER)
         zephyr_library_sources(widgets/layer.c)
+        # Draws the typed-character count into the layer row, so it goes only
+        # where layer.c is compiled.
+        zephyr_library_sources(widgets/char_count.c)
       endif()
 
       target_sources_ifdef(CONFIG_NICE_OLED_WIDGET_PROFILE_BIG app PRIVATE assets/profile_active.c)
@@ -89,6 +94,7 @@ if(CONFIG_ZMK_DISPLAY AND CONFIG_NICE_OLED_WIDGET_STATUS)
       endif()
 
       zephyr_library_sources(assets/crystal.c)
+      zephyr_library_sources(assets/screen_art_peripheral.c)
       target_sources_ifdef(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_CAT app PRIVATE assets/cat.c)
       target_sources_ifdef(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SPACEMAN app PRIVATE assets/spaceman.c)
       target_sources_ifdef(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_HEAD app PRIVATE assets/head.c)

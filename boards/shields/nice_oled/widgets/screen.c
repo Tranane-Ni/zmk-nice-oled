@@ -27,6 +27,12 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "output.h"
 #include "profile.h"
 #include "screen.h"
+#include "util.h"
+
+/* Centre-screen artwork: assets/screen_art.c, 68x100 blitted at design (0,24).
+ * It fills the band the luna dog sprite and the WPM graph used to own: below the
+ * battery widget's set_px box (y3..18) and above the hearts (y128). */
+LV_IMG_DECLARE(screen_art)
 
 #ifdef CONFIG_NICE_OLED_WIDGET_RAW_HID
 #include <lvgl.h>
@@ -854,11 +860,19 @@ static struct zmk_widget_hid_indicators hid_indicators_widget;
  * Draw canvas
  **/
 
+static void draw_screen_art(lv_obj_t *canvas) {
+    lv_draw_img_dsc_t img_dsc;
+    lv_draw_img_dsc_init(&img_dsc);
+
+    lv_canvas_draw_img(canvas, 0, 24, &screen_art, &img_dsc);
+}
+
 static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state) {
     lv_obj_t *canvas = lv_obj_get_child(widget, 0);
 
     // Draw widgets
     draw_background(canvas);
+    draw_screen_art(canvas);
     draw_output_status(canvas, state);
 #if !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_CENTRAL_SHOW_BATTERY_PERIPHERAL_ALL) &&                    \
     !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_CENTRAL_SHOW_BATTERY_PERIPHERAL_ONLY) &&                   \
@@ -892,6 +906,13 @@ static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status
 
     // Rotate for horizontal display
     rotate_canvas(canvas, cbuf);
+}
+
+void zmk_widget_screen_repaint(void) {
+    struct zmk_widget_screen *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        draw_canvas(widget->obj, widget->cbuf, &widget->state);
+    }
 }
 
 /**

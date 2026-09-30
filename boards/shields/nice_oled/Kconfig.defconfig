@@ -537,13 +537,13 @@ config NICE_OLED_WIDGET_LAYER_CUSTOM_Y
 config NICE_OLED_WIDGET_BATTERY_CUSTOM_X
     int "Battery widget X position"
     default 0 if NICE_OLED_ON
-    default 26 if NICE_EPAPER_ON
+    default 0 if NICE_EPAPER_ON
     default 0
 
 config NICE_OLED_WIDGET_BATTERY_CUSTOM_Y
     int "Battery widget Y position"
     default 50 if NICE_OLED_ON
-    default 19 if NICE_EPAPER_ON
+    default 1 if NICE_EPAPER_ON
     default 50
 ##}}}
 
@@ -557,7 +557,7 @@ config NICE_OLED_WIDGET_PROFILE_CUSTOM_X
 config NICE_OLED_WIDGET_PROFILE_CUSTOM_Y
     int "Profile widget Y position"
     default 137 if NICE_OLED_ON
-    default 129 if NICE_EPAPER_ON
+    default 124 if NICE_EPAPER_ON
     default 137
 
 config NICE_OLED_WIDGET_PROFILE_TEXT_CUSTOM_X

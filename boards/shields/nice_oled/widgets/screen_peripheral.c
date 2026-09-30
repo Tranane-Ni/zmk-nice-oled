@@ -17,6 +17,13 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "battery.h"
 #include "output.h"
 #include "screen_peripheral.h"
+#include "util.h"
+
+/* Right-hand artwork: assets/screen_art_peripheral.c, 68x69 blitted at design
+ * (0,55) -- the slot the eight-frame animated cat overlay used to own. Drawn
+ * into the canvas buffer rather than as an overlay object so it survives the
+ * full-canvas repaint that every battery/output event triggers. */
+LV_IMG_DECLARE(screen_art_peripheral)
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
@@ -30,10 +37,6 @@ static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 static struct zmk_widget_sleep_status sleep_status_widget;
 #endif
 
-/**
- * luna
- **/
-
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_WPM)
 #include "luna.h"
 static struct zmk_widget_luna luna_widget;
@@ -43,11 +46,19 @@ static struct zmk_widget_luna luna_widget;
  * Draw canvas
  **/
 
+static void draw_screen_art(lv_obj_t *canvas) {
+    lv_draw_img_dsc_t img_dsc;
+    lv_draw_img_dsc_init(&img_dsc);
+
+    lv_canvas_draw_img(canvas, 0, 55, &screen_art_peripheral, &img_dsc);
+}
+
 static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state) {
     lv_obj_t *canvas = lv_obj_get_child(widget, 0);
 
     // Draw widgets
     draw_background(canvas);
+    draw_screen_art(canvas);
     draw_output_status(canvas, state);
     draw_battery_status(canvas, state);
 
@@ -148,7 +159,8 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 
     sys_slist_append(&widgets, &widget->node);
 
-#if !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY)
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL) &&                                    \
+    !IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_SMART_BATTERY)
     draw_animation(canvas, widget);
 #endif
     widget_battery_status_init();

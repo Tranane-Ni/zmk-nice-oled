@@ -25,4 +25,9 @@ lv_obj_t *zmk_widget_battery_status_obj(struct zmk_widget_battery_status *widget
 
 int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent);
 lv_obj_t *zmk_widget_screen_obj(struct zmk_widget_screen *widget);
+
+/* Repaint every screen widget. Called from widgets/char_count.c after it has
+ * eaten a keystroke, which is the only way the typed-character count on the
+ * layer row moves without waiting for a battery or layer event. */
+void zmk_widget_screen_repaint(void);
 #endif

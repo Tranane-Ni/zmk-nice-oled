@@ -177,7 +177,11 @@ static void char_count_eat(const zmk_event_t *eh) {
  * undoes a character has to repaint the screen itself: nothing else here is
  * listening for keystrokes, and waiting for the next battery event would
  * leave the number one behind for minutes. */
-static void char_count_handler(const zmk_event_t *eh) {
+/* Non-void on purpose: ZMK_LISTENER types us as `int (*)(const zmk_event_t *)`, so a void handler
+ * leaks whatever r0 held into zmk_keymap_position_state_changed(), which reads any positive value
+ * as "&trans" and re-applies every lower layer - one press then emits both the layer binding and
+ * the default-layer binding. BUBBLE (0) = observed, not consumed. */
+static int char_count_handler(const zmk_event_t *eh) {
     const int32_t before = chars;
 
     char_count_eat(eh);
@@ -185,6 +189,8 @@ static void char_count_handler(const zmk_event_t *eh) {
     if (chars != before) {
         zmk_widget_screen_repaint();
     }
+
+    return ZMK_EV_EVENT_BUBBLE;
 }
 
 ZMK_LISTENER(char_count, char_count_handler);

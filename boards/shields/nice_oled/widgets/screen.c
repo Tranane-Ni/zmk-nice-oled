@@ -908,10 +908,22 @@ static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status
     rotate_canvas(canvas, cbuf);
 }
 
-void zmk_widget_screen_repaint(void) {
+/* LVGL may only be touched from the display work queue: that is where lv_task_handler() runs, and
+ * nothing locks it. Drawing here instead, from the keystroke context, races the flush loop over
+ * LVGL's shared draw state. Submitting also coalesces - a repaint asked for while one is still
+ * queued is a no-op, so a burst of keystrokes costs one redraw instead of one per character. */
+static void screen_repaint_work_cb(struct k_work *work) {
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
         draw_canvas(widget->obj, widget->cbuf, &widget->state);
+    }
+}
+
+K_WORK_DEFINE(screen_repaint_work, screen_repaint_work_cb);
+
+void zmk_widget_screen_repaint(void) {
+    if (zmk_display_is_initialized()) {
+        k_work_submit_to_queue(zmk_display_work_q(), &screen_repaint_work);
     }
 }
 
